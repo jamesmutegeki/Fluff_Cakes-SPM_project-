@@ -1,0 +1,10 @@
+SYE3104 AUTOMATED PRE-DEPLOYMENT QA & LINK AUDIT — FLUFF CAKES
+Audit Timestamp: 2026-11-14 14:15:48
+----------------------------------------------------------------
+index.html      | Size:  4538 B | Viewport: True | Title: Home | Fluff Cakes | Broken: 0
+about.html      | Size:  4119 B | Viewport: True | Title: About Us | Fluff Cakes | Broken: 0
+services.html   | Size:  4864 B | Viewport: True | Title: Cake Menu & Packages | Fluff Cakes | Broken: 0
+contact.html    | Size:  4443 B | Viewport: True | Title: Order Info & FAQ | Fluff Cakes | Broken: 0
+----------------------------------------------------------------
+Total Website Folder Payload: 66836 bytes (65.3 KB) [Threshold <= 250 KB: PASS]
+Overall QA Result: PASS (0 broken links)

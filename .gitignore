@@ -1,0 +1,27 @@
+# OS and editor noise
+.DS_Store
+Thumbs.db
+~$*
+.~lock.*#
+*.swp
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+.vite/
+*.local
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Tooling state
+.claude-flow/
+.remember/
+.vscode/
+.idea/
+
+# Backups
+_backup_before_stop_slop/

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fluff Cakes | SYE3104 40-Mark Project Command Center</title>
+<style>
+  :root {
+    --cocoa: #4A1D24;
+    --cocoa-deep: #2D1116;
+    --berry: #9D174D;
+    --berry-soft: #FCE7F3;
+    --cream: #FFFBF5;
+    --card: #FFFFFF;
+    --gold: #D97706;
+    --gold-bg: #FEF3C7;
+    --teal: #0F766E;
+    --teal-bg: #CCFBF1;
+    --navy: #1E3A5F;
+    --text: #1F2937;
+    --muted: #4B5563;
+    --border: #EFE2DA;
+    --shadow: 0 6px 20px rgba(74, 29, 36, 0.08);
+    --radius: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .topbar {
+    background: linear-gradient(135deg, var(--cocoa-deep) 0%, var(--cocoa) 55%, var(--berry) 100%);
+    color: #fff;
+    padding: 1.5rem 1.25rem 1.25rem;
+    box-shadow: 0 4px 16px rgba(45, 17, 22, 0.22);
+  }
+  .wrap { max-width: 1140px; margin: 0 auto; }
+  .hero-flex {
+    display: grid;
+    grid-template-columns: 1.45fr 0.95fr;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .pill {
+    display: inline-block;
+    background: rgba(254, 243, 199, 0.2);
+    border: 1px solid rgba(253, 230, 138, 0.45);
+    color: #FDE68A;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.22rem 0.7rem;
+    border-radius: 999px;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+  }
+  .topbar h1 {
+    margin: 0 0 0.45rem;
+    font-size: clamp(1.35rem, 2.6vw, 2rem);
+    line-height: 1.2;
+  }
+  .topbar p {
+    margin: 0;
+    color: #FCE7F3;
+    font-size: 0.95rem;
+    max-width: 62ch;
+  }
+  .cake-meter-card {
+    background: rgba(255, 255, 255, 0.11);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: var(--radius);
+    padding: 1rem 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .score-readout { flex: 1; }
+  .score-big {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #FDE68A;
+    line-height: 1.1;
+  }
+  .score-sub { font-size: 0.84rem; color: #FDE8E8; margin-top: 0.2rem; }
+  .progress-bar-bg {
+    margin-top: 0.55rem;
+    height: 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #FDE68A, #34D399);
+    border-radius: 999px;
+    transition: width 0.35s ease;
+  }
+  .stage-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: rgba(15, 118, 110, 0.85);
+    color: #ECFDF5;
+    padding: 0.18rem 0.6rem;
+    border-radius: 6px;
+  }
+
+  /* Navigation Tabs */
+  .tabs-bar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .tabs-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.65rem 1.25rem;
+    max-width: 1140px;
+    margin: 0 auto;
+  }
+  .tab-btn {
+    border: 1.5px solid transparent;
+    background: #F9F5F2;
+    color: var(--cocoa);
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 0.52rem 0.95rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tab-btn:hover { background: var(--berry-soft); color: var(--berry); }
+  .tab-btn.active {
+    background: var(--cocoa);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(74, 29, 36, 0.18);
+  }
+
+  /* Main Container */
+  .main { padding: 1.5rem 1.25rem 3rem; max-width: 1140px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards & Grids */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.15rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .card h2, .card h3 { margin: 0 0 0.5rem; color: var(--cocoa); }
+  .card h2 { font-size: 1.15rem; }
+  .card h3 { font-size: 1rem; }
+  .muted { color: var(--muted); font-size: 0.92rem; }
+  .mt-1 { margin-top: 1rem; }
+  .mb-1 { margin-bottom: 1rem; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.18rem 0.55rem;
+    border-radius: 6px;
+    margin-bottom: 0.45rem;
+  }
+  .tag-berry { background: var(--berry-soft); color: var(--berry); }
+  .tag-teal { background: var(--teal-bg); color: var(--teal); }
+  .tag-gold { background: var(--gold-bg); color: var(--gold); }
+  .tag-navy { background: #DBEAFE; color: var(--navy); }
+  .tag-red { background: #FEE2E2; color: #991B1B; }
+
+  /* Tier Scorecard Mini Cards */
+  .part-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.85rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+  }
+  .part-card-top { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.86rem; color: var(--cocoa); }
+  .part-mini-bar { height: 7px; background: #F3E8E2; border-radius: 999px; margin-top: 0.45rem; overflow: hidden; }
+  .part-mini-fill { height: 100%; background: var(--berry); border-radius: 999px; transition: width 0.3s ease; }
+
+  /* Checklist Controls */
+  .controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  .filter-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .f-pill {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--cocoa);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .f-pill.active { background: var(--berry); color: #fff; border-color: var(--berry); }
+  .btn-sm {
+    border: none;
+    border-radius: 8px;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-gold { background: var(--gold-bg); color: #92400E; border: 1px solid #FCD34D; }
+  .btn-teal { background: var(--teal); color: #fff; }
+  .btn-ghost { background: #F3F4F6; color: #374151; }
+
+  /* Checklist Items */
+  .task-list { display: flex; flex-direction: column; gap: 0.65rem; }
+  .task-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.9rem;
+    align-items: start;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    cursor: pointer;
+  }
+  .task-item:hover { border-color: #F472B6; }
+  .task-item.done {
+    background: #F0FDF4;
+    border-color: #86EFAC;
+  }
+  .task-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--teal);
+    margin-top: 2px;
+    cursor: pointer;
+  }
+  .task-title { font-weight: 700; color: var(--cocoa); font-size: 0.96rem; }
+  .task-item.done .task-title { text-decoration: line-through; color: #166534; }
+  .task-meta { font-size: 0.84rem; color: var(--muted); margin-top: 0.2rem; }
+  .task-trap {
+    margin-top: 0.35rem;
+    font-size: 0.8rem;
+    color: #92400E;
+    background: #FFFBEB;
+    border-left: 3px solid #F59E0B;
+    padding: 0.25rem 0.55rem;
+    border-radius: 4px;
+  }
+  .pts-badge {
+    background: var(--berry-soft);
+    color: var(--berry);
+    font-weight: 800;
+    font-size: 0.82rem;
+    padding: 0.28rem 0.6rem;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .task-item.done .pts-badge { background: #DCFCE7; color: #166534; }
+
+  /* Timeline */
+  .day-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--navy);
+    border-radius: 12px;
+    padding: 0.95rem 1.15rem;
+    display: grid;
+    grid-template-columns: 125px 1fr 220px;
+    gap: 1rem;
+    align-items: center;
+  }
+  .day-card.cp { border-left-color: #DC2626; }
+  .day-card.mile { border-left-color: var(--teal); background: #F0FDFA; }
+  .day-num { font-weight: 800; color: var(--cocoa); font-size: 0.98rem; }
+  .day-date { font-size: 0.8rem; color: var(--muted); }
+  .day-ev { font-size: 0.82rem; background: #F8FAFC; border: 1px dashed #CBD5E1; padding: 0.45rem 0.65rem; border-radius: 8px; color: #334155; }
+
+  /* Copy Box & Defense Flashcards */
+  pre.copy-box {
+    background: #1E293B;
+    color: #F8FAFC;
+    padding: 1rem;
+    border-radius: 10px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.84rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0.5rem 0;
+  }
+  .flashcard {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .flash-q {
+    width: 100%;
+    text-align: left;
+    background: #FFF7ED;
+    border: none;
+    padding: 0.95rem 1.1rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--cocoa);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .flash-a {
+    display: none;
+    padding: 0.95rem 1.1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--text);
+    background: #fff;
+  }
+  .flashcard.open .flash-a { display: block; }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--cocoa-deep);
+    color: #FDE68A;
+    padding: 0.65rem 1.1rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 820px) {
+    .hero-flex, .grid-2, .grid-3, .grid-4, .day-card {
+      grid-template-columns: 1fr;
+    }
+    .cake-meter-card { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap hero-flex">
+    <div>
+      <span class="pill">SYE3104 PRACTICAL EXAM • 40 MARKS • 14–27 NOV 2026</span>
+      <h1>Fluff Cakes — 40-Mark Bakery Project Command Center</h1>
+      <p>
+        Your interactive roadmap to planning, executing, evidencing, and defending the <strong>Fluff Cakes</strong>
+        4-page static informational website—built so every requirement on the exam sheet turns into a checked mark.
+      </p>
+    </div>
+
+    <div class="cake-meter-card">
+      <!-- Dynamic 4-Tier SVG Celebration Cake -->
+      <svg id="cakeSvg" width="94" height="106" viewBox="0 0 110 124" aria-label="4-Tier Cake Progress Gauge">
+        <rect x="10" y="110" width="90" height="8" rx="4" fill="#FDE68A"/>
+        <!-- Tier 1: Initiation & Stakeholders (a+b = 7m) -->
+        <g id="tier1" opacity="0.28">
+          <rect x="16" y="86" width="78" height="22" rx="5" fill="#FFFBEB"/>
+          <path d="M16 92 Q26 99 36 92 T56 92 T76 92 T94 92 L94 86 L16 86 Z" fill="#F472B6"/>
+        </g>
+        <!-- Tier 2: Planning & Risk (c+d = 14m) -->
+        <g id="tier2" opacity="0.28">
+          <rect x="24" y="62" width="62" height="22" rx="5" fill="#FEF3C7"/>
+          <path d="M24 68 Q33 74 42 68 T60 68 T86 68 L86 62 L24 62 Z" fill="#FB7185"/>
+        </g>
+        <!-- Tier 3: Build, Updates & QA (e = 7m) -->
+        <g id="tier3" opacity="0.28">
+          <rect x="33" y="40" width="44" height="20" rx="5" fill="#FFFBEB"/>
+          <path d="M33 45 Q41 51 49 45 T65 45 T77 45 L77 40 L33 40 Z" fill="#F472B6"/>
+        </g>
+        <!-- Tier 4: Closure & Defense (f+g = 12m) -->
+        <g id="tier4" opacity="0.28">
+          <rect x="42" y="21" width="26" height="17" rx="4" fill="#FEF3C7"/>
+          <circle cx="55" cy="13" r="6" fill="#34D399"/>
+          <path d="M55 7 Q60 2 65 4" fill="none" stroke="#A7F3D0" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+      </svg>
+
+      <div class="score-readout">
+        <div class="score-big"><span id="earnedPts">0.0</span> / 40 <span style="font-size:0.95rem;font-weight:600;">Marks Ready</span></div>
+        <div class="score-sub"><span id="doneCount">0</span> of <span id="totalCount">24</span> deliverables verified</div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="mainProgressBar"></div></div>
+        <span class="stage-badge" id="stageBadge">Stage 1: Prepping Ingredients</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab-btn active" onclick="switchTab('overview', this)">1. Fluff Cakes Explained</button>
+    <button class="tab-btn" onclick="switchTab('tracker', this)">2. 40-Mark Checklist Tracker</button>
+    <button class="tab-btn" onclick="switchTab('timeline', this)">3. 14-Day Baking Roadmap</button>
+    <button class="tab-btn" onclick="switchTab('kit', this)">4. Send Today &amp; Defense Prep</button>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- TAB 1: OVERVIEW -->
+  <section id="tab-overview" class="tab-panel active">
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag tag-berry">THE PROJECT IN PLAIN ENGLISH</span>
+        <h2>What Are We Building for Fluff Cakes?</h2>
+        <p class="muted">
+          <strong>Fluff Cakes</strong> is a small local cake business that currently shares cake flavours, celebration prices, and booking rules
+          informally via WhatsApp statuses and word-of-mouth. Customers keep asking the same questions (<em>"How much is a 1 kg birthday cake?"</em>,
+          <em>"How many days before do I order?"</em>).
+        </p>
+        <p class="muted mt-1">
+          Within <strong>14 calendar days</strong>, you will individually plan, execute, test, deploy, and formally hand over a crisp,
+          <strong>4-page static informational website</strong> hosted at zero cost on <strong>GitHub Pages</strong>:
+        </p>
+        <ul class="muted" style="padding-left:1.2rem; margin-bottom:0;">
+          <li><strong>Page 1 — Home (`index.html`):</strong> Hero summary, bakery quick facts, signature sponge highlights, festive announcement.</li>
+          <li><strong>Page 2 — About Us (`about.html`):</strong> Fluff Cakes story, freshness standards, public governance roles.</li>
+          <li><strong>Page 3 — Cake Menu &amp; Packages (`services.html`):</strong> 1 kg / 2 kg / Cupcake boxes / Two-tier packages + flavour &amp; lead-time table.</li>
+          <li><strong>Page 4 — Order Info &amp; FAQ (`contact.html`):</strong> Non-sensitive inquiry email (`mailto:`), pickup hours, and ordering FAQs.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="tag tag-teal">WHY THIS EARNS FULL MARKS</span>
+        <h2>How the Exam Grades You (40 Marks)</h2>
+        <p class="muted">
+          Your exam paper states: <em>"Assessors will judge project management performance, including documented decisions and learning, rather than product sophistication."</em>
+        </p>
+        <div class="grid-2" style="gap:0.65rem; margin-top:0.85rem;">
+          <div style="background:#F0FDFA; border:1px solid #99F6E4; border-radius:10px; padding:0.75rem;">
+            <strong style="color:#0F766E; font-size:0.86rem;">IN-SCOPE (Keep It Simple)</strong>
+            <ul style="margin:0.35rem 0 0; padding-left:1rem; font-size:0.82rem; color:#1F2937;">
+              <li>4 static HTML5 + CSS3 pages</li>
+              <li>Custom Fluff Cakes SVG logo</li>
+              <li>Mobile (`360px`) &amp; desktop layout</li>
+              <li>3-peer UAT &amp; automated link check</li>
+              <li>Free GitHub Pages URL + Guide</li>
+            </ul>
+          </div>
+          <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:10px; padding:0.75rem;">
+            <strong style="color:#991B1B; font-size:0.86rem;">OUT-OF-SCOPE (Blocked!)</strong>
+            <ul style="margin:0.35rem 0 0; padding-left:1rem; font-size:0.82rem; color:#1F2937;">
+              <li>No backend server or database</li>
+              <li>No user login or accounts</li>
+              <li>No Mobile Money checkout / cart</li>
+              <li>No admin CMS dashboard</li>
+              <li>No paid domain purchase</li>
+            </ul>
+          </div>
+        </div>
+        <p class="muted mt-1" style="font-size:0.84rem; margin-bottom:0;">
+          <strong>Budget Baseline:</strong> UGX 20,000 (Week 1 data UGX 10k + Week 2 data UGX 8k + optional printing UGX 2k) + <strong>15% Contingency (UGX 3,000)</strong> = <strong>UGX 23,000</strong> ceiling.
+        </p>
+      </div>
+    </div>
+
+    <div class="card mt-1">
+      <span class="tag tag-navy">YOUR WORKSPACE FILE MAP</span>
+      <h2>Where Every File Fits Into Your Submission</h2>
+      <div class="grid-3" style="margin-top:0.6rem;">
+        <div style="background:#F8FAFC; padding:0.85rem; border-radius:10px; border:1px solid #E2E8F0;">
+          <strong style="color:var(--navy); font-size:0.9rem;">Initiation &amp; Planning Docs</strong>
+          <ul style="font-size:0.83rem; padding-left:1.1rem; margin:0.4rem 0 0; color:var(--muted);">
+            <li><code>01_Lecturer_Approval_Message.docx</code></li>
+            <li><code>02_Part_A_Project_Charter.docx</code></li>
+            <li><code>03_Part_B_Stakeholder_Register_and_Plan.docx</code></li>
+            <li><code>04_Part_C_Deliverable_WBS.docx</code></li>
+            <li><code>05_Part_C_Schedule_and_Budget.xlsx</code></li>
+            <li><code>06_Part_D_Risk_Comms_and_Quality.docx</code></li>
+          </ul>
+        </div>
+        <div style="background:#F8FAFC; padding:0.85rem; border-radius:10px; border:1px solid #E2E8F0;">
+          <strong style="color:var(--teal); font-size:0.9rem;">Execution, Closure &amp; Report</strong>
+          <ul style="font-size:0.83rem; padding-left:1.1rem; margin:0.4rem 0 0; color:var(--muted);">
+            <li><code>07_Part_E_Execution_Updates_and_Logs.docx</code></li>
+            <li><code>08_Part_F_Project_Closure_Package.docx</code></li>
+            <li><code>09_Part_G_Defense_Prep_Guide.docx</code></li>
+            <li><code>10_SYE3104_Master_Practical_Report.docx</code> <em>(Export to PDF!)</em></li>
+          </ul>
+        </div>
+        <div style="background:#FFF7ED; padding:0.85rem; border-radius:10px; border:1px solid #FDE68A;">
+          <strong style="color:var(--cocoa); font-size:0.9rem;">Live Website &amp; Evidence</strong>
+          <ul style="font-size:0.83rem; padding-left:1.1rem; margin:0.4rem 0 0; color:var(--muted);">
+            <li><code>website/</code> (4 HTML pages, CSS, Fluff Cakes SVG logo, Deploy &amp; Handover Guide)</li>
+            <li><code>Evidence/01_Initiation</code> to <code>05_Deployment_and_Handover</code></li>
+            <li><code>Evidence/00_Evidence_Collection_Checklist.md</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-1">
+      <span class="tag tag-gold">LIVE CAKE TIER BREAKDOWN</span>
+      <h2>Your 40 Marks by Exam Part</h2>
+      <div class="grid-4" id="partSummaryGrid" style="margin-top:0.65rem;"></div>
+    </div>
+  </section>
+
+  <!-- TAB 2: 40-MARK TRACKER -->
+  <section id="tab-tracker" class="tab-panel">
+    <div class="card">
+      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.75rem;">
+        <div>
+          <h2 style="margin:0;">Interactive 40-Mark Completion Checklist</h2>
+          <p class="muted" style="margin:0.2rem 0 0;">Check off each deliverable as you complete it in real life. Each check fills the cake tier &amp; updates your live score.</p>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:0.45rem;">
+          <button class="btn-sm btn-teal" onclick="markPrebuilt()">Check Pre-Built Files</button>
+          <button class="btn-sm btn-gold" onclick="exportProgress()">Copy Progress Backup</button>
+          <button class="btn-sm btn-ghost" onclick="resetProgress()">Reset All</button>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="filter-pills" id="partFilters">
+          <button class="f-pill active" onclick="setFilter('ALL', this)">All Parts (40m)</button>
+          <button class="f-pill" onclick="setFilter('a', this)">Part a (4m)</button>
+          <button class="f-pill" onclick="setFilter('b', this)">Part b (3m)</button>
+          <button class="f-pill" onclick="setFilter('c', this)">Part c (9m)</button>
+          <button class="f-pill" onclick="setFilter('d', this)">Part d (5m)</button>
+          <button class="f-pill" onclick="setFilter('e', this)">Part e (7m)</button>
+          <button class="f-pill" onclick="setFilter('f', this)">Part f (6m)</button>
+          <button class="f-pill" onclick="setFilter('g', this)">Part g (6m)</button>
+        </div>
+        <div class="filter-pills">
+          <button class="f-pill active" id="statusAll" onclick="setStatusFilter('all', this)">All</button>
+          <button class="f-pill" id="statusTodo" onclick="setStatusFilter('todo', this)">To Do Only</button>
+        </div>
+      </div>
+
+      <div class="task-list" id="taskList"></div>
+    </div>
+  </section>
+
+  <!-- TAB 3: 14-DAY ROADMAP -->
+  <section id="tab-timeline" class="tab-panel">
+    <div class="card mb-1">
+      <h2>14-Day Fluff Cakes Execution Roadmap (14 Nov – 27 Nov 2026)</h2>
+      <p class="muted" style="margin:0;">
+        <span class="tag tag-red" style="margin:0 0.35rem 0 0;">RED BORDER = Critical Path (0d Float)</span>
+        <span class="tag tag-navy" style="margin:0 0.35rem 0 0;">NAVY BORDER = Parallel Float Task</span>
+        <span class="tag tag-teal" style="margin:0;">TEAL = Key Milestone Day</span>
+      </p>
+    </div>
+    <div class="task-list" id="timelineContainer"></div>
+  </section>
+
+  <!-- TAB 4: ACTION KIT & DEFENSE -->
+  <section id="tab-kit" class="tab-panel">
+    <div class="grid-2">
+      <div class="card">
+        <span class="tag tag-berry">STEP 1 — DO THIS TODAY</span>
+        <h2>Fluff Cakes Lecturer Approval Message</h2>
+        <p class="muted">Fill in the 4 bracketed personal fields, copy, send, and screenshot the reply for <code>Evidence/01_Initiation/</code>.</p>
+        <div class="filter-pills mt-1" style="margin-bottom:0.5rem;">
+          <button class="f-pill active" onclick="showMsg('wa', this)">WhatsApp / LMS</button>
+          <button class="f-pill" onclick="showMsg('email', this)">Formal Email</button>
+        </div>
+        <pre class="copy-box" id="msgBox"></pre>
+        <button class="btn-sm btn-teal" onclick="copyCurrentMsg()">Copy Message to Clipboard</button>
+      </div>
+
+      <div class="card">
+        <span class="tag tag-teal">PART (g) — 6 MARKS</span>
+        <h2>Examiner Defense Flashcards (Click to Reveal)</h2>
+        <p class="muted">Practice explaining your Fluff Cakes management decisions and handling the examiner's surprise disruption.</p>
+        <div class="task-list" id="flashcardsContainer" style="margin-top:0.75rem;"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast">Copied!</div>
+
+<script>
+// Safe storage wrapper for sandboxed iframes (sandbox="allow-scripts" without allow-same-origin)
+var memoryState = {};
+function safeLoad(key) {
+  try {
+    var raw = window.localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return memoryState[key] || null;
+  }
+}
+function safeSave(key, val) {
+  memoryState[key] = val;
+  try {
+    window.localStorage.setItem(key, JSON.stringify(val));
+  } catch (e) {
+    // Expected inside sandboxed preview; in-memory state keeps working
+  }
+}
+
+var PART_MAX = { a: 4, b: 3, c: 9, d: 5, e: 7, f: 6, g: 6 };
+var PART_NAMES = {
+  a: "Part (a) Charter",
+  b: "Part (b) Stakeholders",
+  c: "Part (c) WBS/Sched/Budget",
+  d: "Part (d) Risk/Comms/QA",
+  e: "Part (e) Execution & Logs",
+  f: "Part (f) Closure Package",
+  g: "Part (g) Defense Prep"
+};
+
+var TASKS = [
+  // Part (a) - 4 marks
+  { id: "a1", part: "a", pts: 1.5, prebuilt: false, tier: 1,
+    title: "Send Scope Approval Request & Capture Lecturer's Written Reply",
+    detail: "Personalize 01_Lecturer_Approval_Message.docx for Fluff Cakes, send today, and save screenshot in Evidence/01_Initiation/.",
+    trap: "Never execute unapproved scope—keep a dated screenshot of the lecturer's 'Approved' reply." },
+  { id: "a2", part: "a", pts: 1.5, prebuilt: true, tier: 1,
+    title: "Finalize Fluff Cakes Project Charter (All 8 Mandatory Elements)",
+    detail: "Verify Problem, Justification, 4 SMART Objectives, Deliverables, In/Out-of-Scope, Success Criteria, Sponsor/Approver & Assumptions in 02_Part_A_Project_Charter.docx.",
+    trap: "Explicitly list Mobile Money checkout, user login, and databases as OUT-OF-SCOPE." },
+  { id: "a3", part: "a", pts: 1.0, prebuilt: false, tier: 1,
+    title: "Obtain Fluff Cakes Sponsor Sign-off on Charter & Replace Name Placeholders",
+    detail: "Fill [Your Name], [Reg. No.], [Lecturer Name], and [Sponsor Name] across documents and capture Sponsor confirmation.",
+    trap: "Keep private phone numbers and ID numbers confidential per Exam Instruction 5." },
+
+  // Part (b) - 3 marks
+  { id: "b1", part: "b", pts: 1.5, prebuilt: true, tier: 1,
+    title: "Review Stakeholder Register & Power–Interest Matrix (S1–S7)",
+    detail: "Confirm Fluff Cakes Owner (Sponsor), SYE3104 Lecturer, Accountable PM (You), 3 Peer Testers, End-Users & GitHub Pages in 03_Part_B_Stakeholder_Register_and_Plan.docx.",
+    trap: "Clearly separate your accountable PM role from peers helping only with UAT." },
+  { id: "b2", part: "b", pts: 1.5, prebuilt: true, tier: 1,
+    title: "Confirm Engagement Plan & RACI Matrix Roles",
+    detail: "Ensure touchpoints match your Communication Plan dates (Day 2, Day 6, Day 11, Day 14).",
+    trap: "Make sure only ONE role holds 'A' (Accountable) per deliverable in RACI." },
+
+  // Part (c) - 9 marks (WBS 3 + Sched 4 + Budget 2)
+  { id: "c1", part: "c", pts: 3.0, prebuilt: true, tier: 2,
+    title: "Verify Deliverable-Based 8-WP WBS & Hierarchy Diagram (3 Marks)",
+    detail: "Check 04_Part_C_Deliverable_WBS.docx covers WP-01 to WP-08 as tangible noun deliverables under the 100% Rule.",
+    trap: "Exam deducts marks for activity/verb WBS nodes—keep every WBS node a noun deliverable." },
+  { id: "c2", part: "c", pts: 4.0, prebuilt: true, tier: 2,
+    title: "Verify Linked Excel Gantt Schedule, Dependencies & Milestones (4 Marks)",
+    detail: "Open 05_Part_C_Schedule_and_Budget.xlsx (Schedule_and_Gantt tab); verify T01–T12 formulas, Critical Path (14d), and M1–M5.",
+    trap: "Do not hardcode dates—use the linked Excel formulas so Start Date drives downstream tasks." },
+  { id: "c3", part: "c", pts: 2.0, prebuilt: true, tier: 2,
+    title: "Verify Itemised Budget with 15% Contingency & Assumptions (2 Marks)",
+    detail: "Confirm Itemised_Budget tab shows UGX 20,000 Base + UGX 3,000 Contingency = UGX 23,000 Cap and zero-cost tools.",
+    trap: "Budget must match the Charter ceiling (UGX 23,000) and Closure expenditure table." },
+
+  // Part (d) - 5 marks
+  { id: "d1", part: "d", pts: 2.5, prebuilt: true, tier: 2,
+    title: "Verify 6-Risk Register & 5x5 Probability–Impact Heatmap",
+    detail: "Review R1–R6 in 06_Part_D_Risk_Comms_and_Quality.docx (including Fluff Cakes content delay R1=16 and scope creep R3=12).",
+    trap: "Every risk needs P, I, Priority, preventive Mitigation, reactive Contingency, and an Owner." },
+  { id: "d2", part: "d", pts: 2.5, prebuilt: true, tier: 2,
+    title: "Confirm Communication Plan & Measurable Quality Criteria",
+    detail: "Verify numeric thresholds: 0 broken links, <= 250 KB payload, clean 360px/1280px display, UAT >= 4.0/5, 0 PII leaked.",
+    trap: "Avoid vague quality statements like 'looks nice'—always cite measurable thresholds." },
+
+  // Part (e) - 7 marks
+  { id: "e1", part: "e", pts: 1.5, prebuilt: false, tier: 3,
+    title: "Collect Fluff Cakes Approved Menu Copy & Sketch Wireframes (WP-03 & WP-04)",
+    detail: "Confirm exact cake prices/flavours with Fluff Cakes Owner, photograph wireframe sketches, and save in Evidence/03_Design_and_Build/.",
+    trap: "Keep dated WhatsApp/email proof showing when the sponsor sent/confirmed the menu." },
+  { id: "e2", part: "e", pts: 1.5, prebuilt: true, tier: 3,
+    title: "Customize & Commit the 4-Page Fluff Cakes Website to Git (WP-05 & WP-06)",
+    detail: "Update location/email placeholders in website/*.html, commit daily to GitHub, and screenshot 'git log --stat' for Evidence/03_Design_and_Build/.",
+    trap: "Multiple dated Git commits over several days prove authentic incremental execution." },
+  { id: "e3", part: "e", pts: 2.0, prebuilt: false, tier: 3,
+    title: "Record Real Progress Update #1 (Day 6) & Progress Update #2 (Day 10)",
+    detail: "Fill actual dates, WPs done, and UGX spent vs. baseline in 07_Part_E_Execution_Updates_and_Logs.docx on Days 6 and 10.",
+    trap: "Do not backdate fake numbers—compare real actual progress against your baseline." },
+  { id: "e4", part: "e", pts: 1.0, prebuilt: false, tier: 3,
+    title: "Maintain Live Issue Log & Verify Change Log (Real or Labelled Hypothetical)",
+    detail: "Log real execution glitches (ISS-01..); if no real scope change happens, keep CR-HYP-01 clearly marked 'HYPOTHETICAL'.",
+    trap: "Exam strictly forbids presenting a hypothetical change as a real project event." },
+  { id: "e5", part: "e", pts: 1.0, prebuilt: false, tier: 3,
+    title: "Run DevTools 360px/1280px Check & Collect 3-Peer UAT Feedback",
+    detail: "Test mobile & desktop views, screenshot DevTools, and gather 3 classmate feedback responses in Evidence/04_Testing_and_Updates/.",
+    trap: "Anonymize testers as Tester-01, Tester-02, Tester-03 in the submitted report." },
+
+  // Part (f) - 6 marks
+  { id: "f1", part: "f", pts: 2.0, prebuilt: false, tier: 4,
+    title: "Deploy Live to GitHub Pages & Capture Sponsor Acceptance Sign-off",
+    detail: "Publish website/ to GitHub Pages, deliver Sponsor_Handover_Guide.docx, and save signed acceptance/WhatsApp proof in Evidence/05_Deployment_and_Handover/.",
+    trap: "Verify the public *.github.io link opens cleanly on a phone over mobile data." },
+  { id: "f2", part: "f", pts: 1.5, prebuilt: false, tier: 4,
+    title: "Reconcile Planned-vs-Actual Expenditure & State Agreements Status",
+    detail: "Enter actual UGX spent in 05_Part_C_Schedule_and_Budget.xlsx and Part (f) table; include redacted MoMo data receipts & 'No commercial agreements apply' note.",
+    trap: "Part (f) explicitly requires stating the status of payments, purchases, or agreements." },
+  { id: "f3", part: "f", pts: 1.5, prebuilt: true, tier: 4,
+    title: "Finalize Deliverable Handover Record, Lessons Learned & Archive Index",
+    detail: "Verify 08_Part_F_Project_Closure_Package.docx links every deliverable and archive folder accurately.",
+    trap: "Make sure every filename listed in the Archive Index actually exists in Evidence/." },
+  { id: "f4", part: "f", pts: 1.0, prebuilt: false, tier: 4,
+    title: "Export Complete 10–15 Page Master Report to PDF & Bundle Submission",
+    detail: "Update 10_SYE3104_Master_Practical_Report.docx with real dates/screenshots, export as PDF, and submit with .xlsx + Evidence/.",
+    trap: "Submission requires PDF report + editable .xlsx schedule/budget + Evidence folder." },
+
+  // Part (g) - 6 marks
+  { id: "g1", part: "g", pts: 4.0, prebuilt: true, tier: 4,
+    title: "Rehearse Evidence-Based Defense of Management Decisions (4 Marks)",
+    detail: "Study 09_Part_G_Defense_Prep_Guide.docx Section 1 so you can cite exact WBS, Critical Path, Budget & Risk numbers from memory.",
+    trap: "Always point to specific dated evidence ('As shown in Update #1 on Day 6...') rather than generic answers." },
+  { id: "g2", part: "g", pts: 2.0, prebuilt: true, tier: 4,
+    title: "Drill Examiner Problem Scenarios: Delay, Cost Hike & Scope Creep (2 Marks)",
+    detail: "Practice the 3 Fluff Cakes scenario flashcards in Tab 4 using the 4-step PM response structure.",
+    trap: "Never blindly say 'yes' to mid-project scope creep or ignore baseline schedule/budget impact." }
+];
+
+var TIMELINE = [
+  { day: "Days 1–2", date: "14–15 Nov", task: "T01: Pitch Fluff Cakes scope to Lecturer & Sponsor; capture written approval.", wp: "WP-01 • M1", type: "mile", ev: "Evidence/01_Initiation/: Pitch & Approval screenshots + Signed Charter" },
+  { day: "Day 3", date: "16 Nov", task: "T02: Finalize Charter & Stakeholder Register. Begin T04 (Fluff Cakes menu/photos request).", wp: "WP-01/03", type: "cp", ev: "Evidence/01_Initiation/Signed_Charter.pdf & Menu Request message" },
+  { day: "Day 4", date: "17 Nov", task: "T03: Lock Planning Baseline v1.0 (8-WP WBS, Linked Excel Schedule/Budget, Risk Register).", wp: "WP-02 • M2", type: "mile", ev: "Evidence/02_Planning/: Schedule_and_Budget_Baseline_v1.xlsx" },
+  { day: "Day 5", date: "18 Nov", task: "T04 finishes (Fluff Cakes menu copy & compressed photos < 250 KB); start T05 Wireframes.", wp: "WP-03/04", type: "float", ev: "Evidence/03_Design_and_Build/: Sponsor content confirmation screenshot" },
+  { day: "Day 6", date: "19 Nov", task: "T05 finishes (Site Map & Wireframes); run T06 Progress Update #1 vs. baseline.", wp: "WP-04/07 • M3", type: "mile", ev: "Evidence/03/: Wireframe photos + Evidence/04/: Progress_Update_1" },
+  { day: "Days 7–8", date: "20–21 Nov", task: "T07: Build & commit Core Pages (index.html, about.html, styles.css, logo.svg).", wp: "WP-05", type: "cp", ev: "Git commits with timestamps + local browser check" },
+  { day: "Days 9–10", date: "22–23 Nov", task: "T08: Build Cake Menu & Order Info/FAQ pages; Day 10 run T09 Progress Update #2.", wp: "WP-06/07", type: "cp", ev: "Evidence/03/: git log screenshot + Evidence/04/: Progress_Update_2" },
+  { day: "Days 11–12", date: "24–25 Nov", task: "T10: Run automated link check, 360px/1280px DevTools QA, 3-Peer UAT & fix minor glitches.", wp: "WP-07 • M4", type: "mile", ev: "Evidence/04/: DevTools screenshots + 3 anonymized UAT logs" },
+  { day: "Day 13", date: "26 Nov", task: "T11: Push to GitHub, enable GitHub Pages, verify live HTTPS URL on mobile & desktop.", wp: "WP-08", type: "cp", ev: "Evidence/05_Deployment_and_Handover/: Live GitHub Pages screenshot" },
+  { day: "Day 14", date: "27 Nov", task: "T12: Hand over Guide to Fluff Cakes Sponsor, get Acceptance Sign-off, reconcile budget & export PDF.", wp: "WP-08 • M5", type: "mile", ev: "Evidence/05/: Signed Acceptance, MoMo receipts & Final PDF Submission" }
+];
+
+var MSGS = {
+  wa: `Good morning/afternoon [Lecturer Title & Name], I am [Your Full Name] ([Your Reg. No.]), BSc Computer Science Year 3, requesting scope approval for the SYE3104 Practical Exam.\n\nI propose building and deploying a 4-page static informational website (Home, About Us, Cake Menu & Packages, Order Info & FAQ) hosted free on GitHub Pages for a local cake business, Fluff Cakes, sponsored by [Sponsor Name], Founder & Head Baker. It uses plain HTML/CSS only (no backend, database, login, or online payments) and runs over 14 calendar days (14–27 Nov 2026) within a mobile-data budget of UGX 23,000.\n\nMay I proceed with this scope? Thank you.`,
+  email: `Subject: SYE3104 Practical Exam — Project Scope Approval Request ([Your Full Name], [Your Reg. No.])\n\nDear [Lecturer Title & Name],\n\nI hope you are well. In accordance with the SYE3104 (Software Project Management) Practical Examination guidelines, I kindly request your approval for my 14-day individual technology project scope:\n\n- Project Title: Design, Development, and Deployment of a 4-Page Static Informational Website for Fluff Cakes\n- Project Sponsor: [Sponsor Name], Founder & Head Baker (Fluff Cakes)\n- In-Scope Deliverables: Four static, mobile-responsive HTML5/CSS3 pages (Home, About Us, Cake Menu & Packages, Order Info & FAQ), 3-peer usability testing, free public deployment on GitHub Pages, and a 1-page sponsor handover guide.\n- Out-of-Scope Boundaries: No backend server, database, user login, online Mobile Money checkout/cart, CMS, or paid domain purchase.\n- Timeline & Budget: 14 calendar days (14 November – 27 November 2026), using free tools and a mobile-data budget of UGX 23,000 (including 15% contingency).\n\nPlease let me know if this scope is approved so I can lock my baseline and begin execution.\n\nKind regards,\n[Your Full Name]\n[Your Registration Number] | BSc Computer Science (Year 3, Sem 1)`
+};
+
+var FLASHCARDS = [
+  { q: "Scenario 1 (Delay): \"Suppose Fluff Cakes delays sending cake menu prices & photos by 3 days (until Day 8). How do you keep the Day 14 deadline?\"",
+    a: "<strong>1. Quantify Impact:</strong> T04 had 1 day float (D3–D5); a 3-day slip reaches Day 8 and pressures T07.<br><strong>2. Activate Risk R1 Contingency:</strong> Fast-track T07 on Days 7–8 by coding the 4 HTML layouts and CSS with clean placeholder cake labels.<br><strong>3. Recover & Verify:</strong> Swap in Fluff Cakes' approved prices/copy in ~1 hour on Day 8 evening, keeping Days 11–12 intact for QA and 3-peer UAT.<br><strong>4. Log & Report:</strong> Record the delay and recovery action in the Issue Log and Progress Update #2." },
+  { q: "Scenario 2 (Cost Hike): \"Suppose mobile data & printing costs rise by UGX 6,000 mid-project. What do you do?\"",
+    a: "<strong>1. Check Baseline:</strong> Base cost rises from UGX 20,000 to UGX 26,000 (+UGX 3,000 over the UGX 23,000 cap).<br><strong>2. Draw Contingency:</strong> Release the UGX 3,000 (15%) Contingency Reserve first.<br><strong>3. Value-Engineer Savings:</strong> Switch Sponsor Handover & Acceptance to digital-only PDF/WhatsApp confirmation (saving UGX 2,000 printing) and run all HTML/CSS/link tests locally offline to minimize data consumption.<br><strong>4. Document:</strong> Record actual spend and justification in 05_Part_C_Schedule_and_Budget.xlsx and Closure Report." },
+  { q: "Scenario 3 (Scope Creep): \"On Day 9, the Fluff Cakes owner asks to add user accounts and online Mobile Money cake checkout.\"",
+    a: "<strong>1. Evaluate Triple Constraint:</strong> Violates Charter Section 5 (Out-of-Scope); adds ~7–10 days of backend/payment dev & security testing plus paid hosting—impossible inside a 14-day exam.<br><strong>2. Formal Change Control:</strong> Log Change Request, explain schedule & security/PII risks to the Sponsor, and decline Phase-1 inclusion.<br><strong>3. Zero-Cost Alternative:</strong> Keep the static <code>mailto:</code> inquiry button (or link a free external Google Form) for Phase 1, and document online checkout as a Phase-2 recommendation." },
+  { q: "Decision Q&A: \"Why did you build a static HTML/CSS site instead of WordPress or React + Node.js?\"",
+    a: "Exam instructions explicitly state that assessors grade <strong>project management rigor, evidence, and documented learning—not software complexity</strong>. A static 4-page site (65.3 KB total folder, 0 broken links, free GitHub Pages hosting) removed server/hosting failure risks, kept total cost to UGX 20,000 (+15% reserve), and let me execute all 8 WPs cleanly in 14 days." }
+];
+
+var STORAGE_KEY = "fluff_cakes_40m_v1";
+var checkedMap = safeLoad(STORAGE_KEY) || {};
+var activePart = "ALL";
+var activeStatus = "all";
+var currentMsgMode = "wa";
+
+function switchTab(id, btn) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + id).classList.add("active");
+  btn.classList.add("active");
+}
+
+function setFilter(part, btn) {
+  activePart = part;
+  document.querySelectorAll("#partFilters .f-pill").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderTasks();
+}
+
+function setStatusFilter(st, btn) {
+  activeStatus = st;
+  document.getElementById("statusAll").classList.remove("active");
+  document.getElementById("statusTodo").classList.remove("active");
+  btn.classList.add("active");
+  renderTasks();
+}
+
+function toggleTask(id) {
+  checkedMap[id] = !checkedMap[id];
+  safeSave(STORAGE_KEY, checkedMap);
+  renderAll();
+}
+
+function markPrebuilt() {
+  TASKS.forEach(t => { if (t.prebuilt) checkedMap[t.id] = true; });
+  safeSave(STORAGE_KEY, checkedMap);
+  renderAll();
+  showToast("Marked 11 pre-built workspace files ready! Complete the remaining real-world steps.");
+}
+
+function resetProgress() {
+  checkedMap = {};
+  safeSave(STORAGE_KEY, checkedMap);
+  renderAll();
+  showToast("Progress reset to 0 / 40 marks.");
+}
+
+function exportProgress() {
+  var doneIds = TASKS.filter(t => checkedMap[t.id]).map(t => t.id);
+  var summary = "Fluff Cakes SYE3104 Progress (" + document.getElementById("earnedPts").textContent + "/40 marks): Done IDs = [" + doneIds.join(", ") + "]";
+  copyText(summary);
+}
+
+function copyText(txt) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(() => showToast("Copied to clipboard!")).catch(() => fallbackCopy(txt));
+  } else {
+    fallbackCopy(txt);
+  }
+}
+function fallbackCopy(txt) {
+  var ta = document.createElement("textarea");
+  ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); showToast("Copied to clipboard!"); } catch (e) { showToast("Select & copy manually."); }
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  var el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+function renderAll() {
+  // Calculate scores
+  var earned = 0, doneCnt = 0;
+  var partEarned = { a:0, b:0, c:0, d:0, e:0, f:0, g:0 };
+  var tierStats = { 1:[0,0], 2:[0,0], 3:[0,0], 4:[0,0] };
+
+  TASKS.forEach(t => {
+    tierStats[t.tier][1]++;
+    if (checkedMap[t.id]) {
+      earned += t.pts;
+      doneCnt++;
+      partEarned[t.part] += t.pts;
+      tierStats[t.tier][0]++;
+    }
+  });
+
+  document.getElementById("earnedPts").textContent = earned.toFixed(1);
+  document.getElementById("doneCount").textContent = doneCnt;
+  document.getElementById("totalCount").textContent = TASKS.length;
+  var pct = (earned / 40) * 100;
+  document.getElementById("mainProgressBar").style.width = pct.toFixed(1) + "%";
+
+  var stage = "Stage 1: Prepping Ingredients";
+  if (pct >= 100) stage = "40 / 40 — Baked to Perfection!";
+  else if (pct >= 75) stage = "Stage 4: Ready for Handover & Defense";
+  else if (pct >= 45) stage = "Stage 3: Frosted & Testing in Progress";
+  else if (pct >= 15) stage = "Stage 2: Planning Batter Mixed!";
+  document.getElementById("stageBadge").textContent = stage;
+
+  // Light up cake tiers dynamically
+  [1,2,3,4].forEach(tr => {
+    var ratio = tierStats[tr][1] ? (tierStats[tr][0] / tierStats[tr][1]) : 0;
+    var op = ratio >= 1 ? "1" : (ratio > 0 ? (0.4 + ratio * 0.45).toFixed(2) : "0.28");
+    document.getElementById("tier" + tr).setAttribute("opacity", op);
+  });
+
+  // Render part mini-cards on Tab 1
+  var pGrid = document.getElementById("partSummaryGrid");
+  pGrid.innerHTML = Object.keys(PART_MAX).map(k => {
+    var e = partEarned[k], m = PART_MAX[k], p = Math.min(100, (e/m)*100);
+    return `<div class="part-card">
+      <div class="part-card-top"><span>${PART_NAMES[k]}</span><span style="color:var(--berry);">${e.toFixed(1)} / ${m}m</span></div>
+      <div class="part-mini-bar"><div class="part-mini-fill" style="width:${p}%"></div></div>
+    </div>`;
+  }).join("");
+
+  renderTasks();
+}
+
+function renderTasks() {
+  var list = document.getElementById("taskList");
+  var filtered = TASKS.filter(t => {
+    if (activePart !== "ALL" && t.part !== activePart) return false;
+    if (activeStatus === "todo" && checkedMap[t.id]) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="padding:1.5rem; text-align:center; color:var(--muted);">All items in this view are checked off!</div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(t => {
+    var isDone = !!checkedMap[t.id];
+    var preTag = t.prebuilt ? `<span class="tag tag-teal" style="margin:0 0 0 0.4rem;">Workspace Draft Ready</span>` : `<span class="tag tag-gold" style="margin:0 0 0 0.4rem;">Requires Your Real Action</span>`;
+    return `<div class="task-item ${isDone ? 'done' : ''}" onclick="toggleTask('${t.id}')">
+      <input type="checkbox" ${isDone ? 'checked' : ''} onclick="event.stopPropagation(); toggleTask('${t.id}');" />
+      <div>
+        <div class="task-title">[Part ${t.part}] ${t.title} ${preTag}</div>
+        <div class="task-meta">${t.detail}</div>
+        <div class="task-trap"><strong>Examiner Guard:</strong> ${t.trap}</div>
+      </div>
+      <div class="pts-badge">+${t.pts.toFixed(1)} pts</div>
+    </div>`;
+  }).join("");
+}
+
+function renderTimeline() {
+  document.getElementById("timelineContainer").innerHTML = TIMELINE.map(d => {
+    var cls = d.type === "mile" ? "mile" : (d.type === "cp" ? "cp" : "");
+    return `<div class="day-card ${cls}">
+      <div><div class="day-num">${d.day}</div><div class="day-date">${d.date}</div></div>
+      <div><span class="tag tag-navy" style="margin-bottom:0.25rem;">${d.wp}</span><div style="font-weight:600; font-size:0.93rem;">${d.task}</div></div>
+      <div class="day-ev"><strong>Evidence:</strong> ${d.ev}</div>
+    </div>`;
+  }).join("");
+}
+
+function showMsg(mode, btn) {
+  currentMsgMode = mode;
+  btn.parentElement.querySelectorAll(".f-pill").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("msgBox").textContent = MSGS[mode];
+}
+
+function copyCurrentMsg() {
+  copyText(MSGS[currentMsgMode]);
+}
+
+function renderFlashcards() {
+  document.getElementById("flashcardsContainer").innerHTML = FLASHCARDS.map((f, idx) => `
+    <div class="flashcard" id="fc-${idx}">
+      <button class="flash-q" onclick="this.parentElement.classList.toggle('open')">
+        <span>${f.q}</span><span>▾</span>
+      </button>
+      <div class="flash-a">${f.a}</div>
+    </div>
+  `).join("");
+}
+
+// Init
+renderAll();
+renderTimeline();
+document.getElementById("msgBox").textContent = MSGS.wa;
+renderFlashcards();
+</script>
+</body>
+</html>
