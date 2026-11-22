@@ -8,16 +8,16 @@ The project plans, executes and closes a **4-page static informational website f
 
 | # | File | Part | Content |
 |---|------|------|---------|
-| 01 | `01_Lecturer_Approval_Message.docx` | — | Scope pitch and written lecturer approval |
-| 02 | `02_Fluff_Cakes_Project_Charter.docx` | A | Objectives, scope, success criteria, authority |
-| 03 | `03_Part_B_Fluff_Cakes_Stakeholder_Register_and_Plan.docx` | B | Stakeholder register, power/interest grid, engagement plan |
-| 04 | `04_Part_C_Deliverable_WBS.docx` | C | Deliverable-based WBS, 8 work packages, dictionary |
-| 05 | `05_Part_C_Schedule_and_Budget.xlsx` | C, F | Linked Gantt schedule, itemised budget, milestones |
-| 06 | `06_Part_D_Risk_Comms_and_Quality.docx` | D | Risk register, communication and quality plans |
-| 07 | `07_Part_E_Execution_Updates_and_Logs.docx` | E | Progress updates, issue log, change control |
-| 08 | `08_Part_F_Project_Closure_Package.docx` | F | Closure report, lessons learned, budget reconciliation |
-| 09 | `09_Part_G_Defense_Prep_Guide.docx` | G | Defense questions, answers, evidence map |
-| 10 | `10_SYE3104_Master_Practical_Report.docx` | A–G | Consolidated submission report |
+| 01 | `Lecturer_Approval_Message.docx` | — | Scope pitch and written lecturer approval |
+| 02 | `Fluff_Cakes_Project_Charter.docx` | A | Objectives, scope, success criteria, authority |
+| 03 | `Part_B_Fluff_Cakes_Stakeholder_Register_and_Plan.docx` | B | Stakeholder register, power/interest grid, engagement plan |
+| 04 | `Part_C_Deliverable_WBS.docx` | C | Deliverable-based WBS, 8 work packages, dictionary |
+| 05 | `Part_C_Schedule_and_Budget.xlsx` | C, F | Linked Gantt schedule, itemised budget, milestones |
+| 06 | `Part_D_Risk_Comms_and_Quality.docx` | D | Risk register, communication and quality plans |
+| 07 | `Part_E_Execution_Updates_and_Logs.docx` | E | Progress updates, issue log, change control |
+| 08 | `Part_F_Project_Closure_Package.docx` | F | Closure report, lessons learned, budget reconciliation |
+| 09 | `Part_G_Defense_Prep_Guide.docx` | G | Defense questions, answers, evidence map |
+| 10 | `SPM_Master_Practical_Report.docx` | A–G | Consolidated submission report |
 
 `Fluff_Cakes_Project_Tracker.html` is an interactive single-page tracker for the same deliverables.
 
