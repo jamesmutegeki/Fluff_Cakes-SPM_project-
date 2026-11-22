@@ -36,7 +36,7 @@ The project plans, executes and closes a **4-page static informational website f
 ├── website/                   # the delivered website (Vite + React)
 └── uploads/                   # supporting reference material
 ```
-
+## Website Link - [Fluff_Cakes](https://fluff-cakes-zz9u.arcada.app/#/)
 ## Website
 
 ```bash
